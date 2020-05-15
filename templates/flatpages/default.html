@@ -1,0 +1,10 @@
+{% extends "base.html" %} 
+{% block title %} {{ flatpage.title }} {% endblock %}
+{% block content %}
+
+    <div class="container">
+        <h1><p class="top-name center-block text-center">{{ flatpage.title }}</p></h1>
+        {{ flatpage.content }}
+    </div>
+
+{% endblock %}

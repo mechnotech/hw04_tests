@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Новая запись
+{% endblock %}
+{% block content %}
+{% load user_filters %}
+    <div class="row justify-content-center">
+        <div class="col-md-8 p-5">
+            <div class="card">
+                {% if post %}
+                    <div class="card-header">Редактировать запись</div>
+                {% else %}
+                    <div class="card-header">Добавить запись</div>
+                {% endif %}
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        {% for field in form %}
+                            {% include 'forms_body_cycle.html' %}
+                        {% endfor %}
+                        <div class="col-md-6 offset-md-4">
+                            {% if post %}
+                                <button type="submit" class="btn btn-primary">
+                                    Сохранить
+                                </button>
+                            {% else %}
+                                <button type="submit" class="btn btn-primary">
+                                    Добавить
+                                </button>
+                            {% endif %}
+                        </div>
+                    </form>
+                </div>
+                <!-- card body -->
+            </div>
+            <!-- card -->
+        </div>
+        <!-- col -->
+    </div>
+    <!-- row -->
+{% endblock %}

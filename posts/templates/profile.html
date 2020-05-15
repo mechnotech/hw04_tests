@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}
+    Профиль пользователя
+    {{ author.username }}
+{% endblock %}
+{% block content %}
+    <main role="main" class="container">
+        <div class="row">
+            <div class="col-md-3 mb-3 mt-1">
+                <div class="card">
+                    <div class="card-body">
+                        <div
+                            class="h2">
+                            <!-- Имя автора -->
+                            {{ author.first_name }} {{ author.last_name }}
+                        </div>
+                        <div
+                            class="h3 text-muted">
+                            <!-- author.username автора -->
+                            @{{ author.username }}
+                        </div>
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <div class="h6 text-muted">
+                                Подписчиков: XXX
+                                <br/>
+                                Подписан: XXX
+                            </div>
+                        </li>
+                        <li class="list-group-item">
+                            <div
+                                class="h6 text-muted">
+                                <!-- Количество записей -->
+                                Записей:
+                                {{ paginator.count }}
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div
+                class="col-md-9">
+                <!-- Начало блока с отдельным постом -->
+                <div class="card mb-3 mt-1 shadow-sm">
+                    <div class="card-body">
+                        <p
+                            class="card-text">
+                            <!-- Ссылка на страницу автора в атрибуте href; author.username автора в тексте ссылки -->
+                            <a href="/{{ author.username }}/">
+                                <strong class="d-block text-gray-dark">@{{ author.username }}</strong>
+                            </a>
+                            {% if paginator.count > 0 %}
+                                <!-- Текст поста -->
+                                {{ page.0 }}
+                            </p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div
+                                    class="btn-group ">
+                                    <!-- Ссылка на страницу записи в атрибуте href-->
+                                    <a class="btn btn-sm text-muted" href="/{{ author.username }}/{{ page.0.pk }}/" role="button">Добавить комментарий</a>
+                                    <!-- Ссылка на редактирование, показывается только автору записи  -->
+                                    {% if user == page.0.author %}
+                                        <a class="btn btn-sm text-muted" href="/{{ author.username }}/{{ page.0.pk }}/edit" role="button">Редактировать</a>
+                                    {% endif %}
+                                </div>
+                                <!-- Дата публикации  -->
+                                <small class="text-muted">{{ page.0.pub_date|date:"d M Y" }}</small>
+                            </div>
+                            {% else %}
+                                Пользователь пока ничего не написал
+                            {% endif %}
+                    </div>
+                </div>
+                <!-- Конец блока с отдельным постом -->
+                <!-- Остальные посты -->
+                {% if paginator.count > 0 %}
+                    {% include 'page_paginator.html' with is_profile_query=True %}
+                {% endif %}
+            </div>
+        </div>
+    </main>
+{% endblock %}

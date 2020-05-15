@@ -1,0 +1,26 @@
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Subject: 
+ =?utf-8?b?0KHQsdGA0L7RgSDQv9Cw0YDQvtC70Y8g0L3QsCBsb2NhbGhvc3Q6ODAwMA==?=
+From: webmaster@localhost
+To: mechnotech@gmail.com
+Date: Thu, 30 Apr 2020 09:27:04 -0000
+Message-ID: <158823882454.83401.9655307332405139368@ubuntu>
+
+
+Вы получили это письмо, потому что вы (или кто-то другой) запросили восстановление пароля от учётной записи на сайте localhost:8000, которая связана с этим адресом электронной почты.
+
+Пожалуйста, перейдите на эту страницу и введите новый пароль:
+
+http://localhost:8000/auth/reset/NQ/5g3-eea8b9fec9f312a91f97/
+
+Ваше имя пользователя (на случай, если вы его забыли): Bron
+
+Спасибо, что используете наш сайт!
+
+Команда сайта localhost:8000
+
+
+
+-------------------------------------------------------------------------------
