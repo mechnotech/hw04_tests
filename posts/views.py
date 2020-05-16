@@ -62,19 +62,18 @@ def post_view(request, username, post_id):
 
 
 def post_edit(request, username, post_id):
-    user = get_object_or_404(User, username=username)
+    post = get_object_or_404(Post, pk=post_id)
 
-    if request.user != user:
+    if request.user != post.author:
         return redirect('post', username=username, post_id=post_id)
-
-    post = get_object_or_404(Post, author=user, pk=post_id)
 
     if request.method == 'POST':
         form = PostForm(request.POST, instance=post)
+
         if form.is_valid():
             form.save(commit=True)
-
             return redirect('post', username=username, post_id=post.pk)
+
         return render(request, "new_post.html", {'form': form, 'post': post})
 
     form = PostForm(instance=post)
