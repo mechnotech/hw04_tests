@@ -54,7 +54,7 @@ def profile(request, username):
 
 
 def post_view(request, username, post_id):
-    user = User.objects.get(username=username)
+    user = get_object_or_404(User, username=username)
     post = get_object_or_404(Post, pk=post_id, author=user)
     counter = user.posts.count()
     return render(request, "post.html",
@@ -62,12 +62,12 @@ def post_view(request, username, post_id):
 
 
 def post_edit(request, username, post_id):
-    user = User.objects.get(username=username)
+    user = get_object_or_404(User, username=username)
 
     if request.user != user:
         return redirect('post', username=username, post_id=post_id)
 
-    post = get_object_or_404(Post, pk=post_id)
+    post = get_object_or_404(Post, author=user, pk=post_id)
 
     if request.method == 'POST':
         form = PostForm(request.POST, instance=post)
