@@ -6,8 +6,8 @@ from .forms import PostForm
 from .models import Group, Post, User
 
 
-def get_one_page(request, post_list, rec_per_page=10):
-    paginator = Paginator(post_list, rec_per_page)
+def get_paginated_view(request, post_list, page_size=10):
+    paginator = Paginator(post_list, page_size)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
     return page, paginator
@@ -15,7 +15,7 @@ def get_one_page(request, post_list, rec_per_page=10):
 
 def index(request):
     post_list = Post.objects.order_by("-pub_date").all()
-    page, paginator = get_one_page(request, post_list)
+    page, paginator = get_paginated_view(request, post_list)
     return render(request, 'index.html',
                   {'page': page, 'paginator': paginator})
 
@@ -23,7 +23,7 @@ def index(request):
 def group_posts(request, slug):
     group = get_object_or_404(Group, slug=slug)
     post_list = group.posts.order_by('-pub_date').all()
-    page, paginator = get_one_page(request, post_list)
+    page, paginator = get_paginated_view(request, post_list)
     return render(request, 'group.html',
                   {'group': group, 'page': page, 'paginator': paginator})
 
@@ -48,7 +48,7 @@ def new_post(request):
 def profile(request, username):
     user = get_object_or_404(User, username=username)
     post_list = user.posts.order_by('-pub_date').all()
-    page, paginator = get_one_page(request, post_list)
+    page, paginator = get_paginated_view(request, post_list)
     return render(request, "profile.html",
                   {'page': page, 'paginator': paginator, 'author': user})
 
@@ -56,23 +56,21 @@ def profile(request, username):
 def post_view(request, username, post_id):
     user = get_object_or_404(User, username=username)
     post = get_object_or_404(Post, pk=post_id, author=user)
-    counter = user.posts.count()
-    return render(request, "post.html",
-                  {'post': post, 'counter': counter, 'author': user})
+    return render(request, "post.html", {'post': post, 'author': user})
 
 
 def post_edit(request, username, post_id):
     post = get_object_or_404(Post, pk=post_id)
 
     if request.user != post.author:
-        return redirect('post', username=username, post_id=post_id)
+        return redirect('post_detail', username=username, post_id=post_id)
 
     if request.method == 'POST':
         form = PostForm(request.POST, instance=post)
 
         if form.is_valid():
             form.save(commit=True)
-            return redirect('post', username=username, post_id=post.pk)
+            return redirect('post_detail', username=username, post_id=post.pk)
 
         return render(request, "new_post.html", {'form': form, 'post': post})
 
