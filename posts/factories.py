@@ -1,5 +1,5 @@
 import factory
-
+import random
 from .models import User, Post
 
 
@@ -7,11 +7,12 @@ class UserFactory(factory.DjangoModelFactory):
     class Meta:
         model = User
 
+
     first_name = factory.Faker('first_name')
     last_name = factory.Faker('last_name')
-    username = str(first_name) + str(last_name)
-    email = factory.LazyAttribute(lambda o: f'{o.username}@example.com')
-    password = factory.Faker('sentence', nb_words=1)
+    username = factory.Faker('user_name')
+    email = factory.Faker('email')
+    password = factory.Faker('password')
 
 
 class PostFactory(factory.DjangoModelFactory):
@@ -19,4 +20,4 @@ class PostFactory(factory.DjangoModelFactory):
         model = Post
 
     author = factory.SubFactory(UserFactory)
-    text = factory.Faker('sentence', nb_words=25)
+    text = factory.Faker('sentence', nb_words=1000+6000*random.random())
