@@ -3,11 +3,12 @@ from django.test import Client, TestCase
 from .factories import UserFactory, PostFactory, reset_factory_random
 
 
-class ProfileTest(TestCase):
+class UsersTest(TestCase):
     """
     После регистрации пользователя создается его
     персональная cтраница (profile)
     """
+
     def setUp(self):
         self.client = Client()
 
@@ -35,6 +36,7 @@ class UserNewPostTest(TestCase):
     2) Неавторизованный посетитель не может опубликовать пост (его
     редиректит на страницу входа)
     """
+
     def setUp(self):
         self.client = Client()
         self.user = UserFactory.create()
@@ -43,12 +45,12 @@ class UserNewPostTest(TestCase):
     def test_user_new_post(self):
         self.client.force_login(self.user)
         for record in self.records:
-            responce = self.client.post('/new/',
+            response = self.client.post('/new/',
                                         data={'author': self.user,
                                               'text': record.text},
                                         follow=True)
             with self.subTest('Ошибка темплейта или формы /new/'):
-                self.assertEqual(responce.status_code, 200)
+                self.assertEqual(response.status_code, 200)
         post = self.user.posts.filter(author=self.user).last()
         with self.subTest('Пост не попадает в базу данных (/new/)'):
             self.assertEqual(post.text, self.records[-1].text)
@@ -71,15 +73,20 @@ class NewPostVisibleTest(TestCase):
     транице сайта (index), на персональной странице пользователя (
     profile), и на отдельной странице поста (post)
     """
+
     def setUp(self):
         self.client = Client()
         self.user = UserFactory.create()
-        self.client.force_login(self.user)
-        self.record = PostFactory(author=self.user)
-        self.client.post('/new/', data={'author': self.user,
-                                        'text': self.record.text})
+        self.record = PostFactory.build(author=self.user)
 
     def test_new_post_main_visible(self):
+        response = self.client.get('/')
+        with self.subTest('Запись появилась на главной до публикации!'):
+            self.assertNotContains(response, self.record.text, status_code=200,
+                                   html=True)
+        self.client.force_login(self.user)
+        self.client.post('/new/', data={'author': self.user,
+                                        'text': self.record.text})
         response = self.client.get('/')
         with self.subTest('Записи нет на главной странице'):
             self.assertContains(response, self.record.text, status_code=200,
@@ -87,13 +94,28 @@ class NewPostVisibleTest(TestCase):
 
     def test_new_post_profile_visible(self):
         response = self.client.get(f'/{self.user}/')
+        with self.subTest('Запись появилась в профиле до публикации!'):
+            self.assertNotContains(response, self.record.text, status_code=200,
+                                   html=True)
+        self.client.force_login(self.user)
+        self.client.post('/new/', data={'author': self.user,
+                                        'text': self.record.text})
+        response = self.client.get(f'/{self.user}/')
         with self.subTest('Записи нет в профиле'):
             self.assertContains(response, self.record.text, status_code=200,
                                 html=True)
 
     def test_new_post_own_page_visible(self):
-        response = self.client.get(f'/{self.user}/{self.record.pk}/')
-        with self.subTest('Записи нет на странице поста'):
+        url = f'/{self.user}/1/'
+        response = self.client.get(url)
+        with self.subTest(f'Запись появляется до публикации! {url}'):
+            self.assertNotContains(response, self.record.text, status_code=404,
+                                   html=True)
+        self.client.force_login(self.user)
+        self.client.post('/new/', data={'author': self.user,
+                                        'text': self.record.text})
+        response = self.client.get(url)
+        with self.subTest(f'Записи нет на странице поста {url}'):
             self.assertContains(response, self.record.text, status_code=200)
 
 
@@ -102,6 +124,7 @@ class UserCanEditPostTest(TestCase):
     Авторизованный пользователь может отредактировать свой пост и его
     содержимое изменится на всех связанных страницах
     """
+
     def setUp(self):
         self.client = Client()
         self.user = UserFactory.create()
