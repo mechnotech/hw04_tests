@@ -1,6 +1,7 @@
 from django.test import Client, TestCase
 
-from .factories import UserFactory, PostFactory
+from .factories import UserFactory, PostFactory, reset_factory_random
+from .models import Post, User
 
 
 class ProfileTest(TestCase):
@@ -13,9 +14,15 @@ class ProfileTest(TestCase):
         self.client = Client()
 
     def test_profile(self):
+        reset_factory_random()
+        self.users = UserFactory.build_batch(10)
+        for user in self.users:
+            response = self.client.get(f'/{user.username}/')
+            with self.subTest(f'Профиль пользователя {user.username}'
+                              f'появился до создания учетной записи!'):
+                self.assertEqual(response.status_code, 404)
 
-        with self.subTest():
-            pass
+        reset_factory_random()
         self.users = UserFactory.create_batch(10)
         for user in self.users:
             response = self.client.get(f'/{user.username}/')
@@ -27,60 +34,47 @@ class ProfileTest(TestCase):
         self.client.logout()
 
 
-class NewPostTest(TestCase):
+class UserNewPostTest(TestCase):
     """
-    Авторизованный пользователь может опубликовать пост (new)
-    """
-
-    def setUp(self):
-        self.client = Client()
-        self.user = UserFactory()
-        self.client.login(username=self.user.username,
-                          password=self.user.password)
-        self.records = PostFactory.create_batch(10, author=self.user)
-
-    def test_user_make_new_post(self):
-        for record in self.records:
-            response = self.client.post('/new/',
-                                        data={'author': self.user,
-                                              'text': record.text},
-                                        follow=True)
-            with self.subTest(f'Интерфейс /new/ ответил ошибкой'
-                              f'для, входных данных:'
-                              f' user {self.user.username}'):
-                self.assertEqual(response.status_code, 200)
-            post = self.user.posts.get(author=self.user,
-                                       text=record.text)
-            with self.subTest(f'Пост не попадает в базу данных из /new/  '
-                              f'входные данные: '
-                              f' user {self.user.username}'):
-                self.assertEqual(post.text, record.text)
-
-    def tearDown(self):
-        self.client.logout()
-
-
-class UnauthorizedUserPostTest(TestCase):
-    """
-    Неавторизованный посетитель не может опубликовать пост (его
+    1) Авторизованный пользователь может опубликовать пост (new),
+    2) Неавторизованный посетитель не может опубликовать пост (его
     редиректит на страницу входа)
     """
 
     def setUp(self):
         self.client = Client()
-        self.user = UserFactory()
+        self.user = User.objects.create_user(username='teano',
+                                             email='test@test.com',
+                                             password='12345ABCDEF')
+        self.client.login(username='teano', password='12345ABCDEF')
+        #self.record = PostFactory.build(author=self.user)
 
-    def test_new_post_unauthorized(self):
-        self.tearDown()
-        response = self.client.get('/new/')
-        target = '/auth/login/?next=/new/'
-        with self.subTest(
-                f'Проверить переход на страницу логина для неавторизованного '
-                f'пользователя {self.user.username} со страницы /new/'):
-            self.assertRedirects(response, target,
-                                 status_code=302,
-                                 target_status_code=200,
-                                 fetch_redirect_response=True)
+    def test_user_new_post(self):
+        text = 'Test text Test AAA 111'
+        response = self.client.post('/new/',
+                                    data={'author': self.user, 'text': text},
+                                    follow=True)
+        self.assertEqual(response.status_code, 200)
+        post = self.user.posts.filter(author=self.user).first()
+        self.assertEqual(post.text, text,
+                         msg='Пользователь не может созадать пост в (/new/)')
+
+    # def test_unauthorized_new_post(self):
+    #
+    #     response = self.client.get('/new/')
+    #     target = '/auth/login/?next=/new/'
+    #     with self.subTest(
+    #             f'Проверить переход на страницу логина для неавторизованного '
+    #             f'пользователя {self.user.username} со страницы /new/'):
+    #         self.assertRedirects(response, target,
+    #                              status_code=302,
+    #                              target_status_code=200,
+    #                              fetch_redirect_response=True)
+
+    def tearDown(self):
+        self.client.logout()
+
+
     #
     # def test_is_newpost_visible(self):
     #     """
