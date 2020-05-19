@@ -25,7 +25,7 @@ class PostFactory(factory.DjangoModelFactory):
         model = Post
 
     author = factory.SubFactory(UserFactory)
-    text = factory.Faker('sentence', nb_words=1000 + 6000 * random.random())
+    text = factory.Faker('sentence', nb_words=60 * random.random())
 
 
 reset_factory_random()
