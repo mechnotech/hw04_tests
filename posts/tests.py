@@ -30,7 +30,7 @@ class UsersTest(TestCase):
                 self.assertEqual(response.status_code, 200)
 
 
-class UserNewPostTest(TestCase):
+class NewPostTest(TestCase):
     """
     1) Авторизованный пользователь может опубликовать пост (new),
     2) Неавторизованный посетитель не может опубликовать пост (его
