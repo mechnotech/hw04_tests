@@ -5,8 +5,8 @@ import factory.random
 from .models import User, Post
 
 
-def reset_factory_random():
-    factory.random.reseed_random('Yatube project salt 3ef42b5001a')
+def reset_factory_random(salt='3ef42b5001a'):
+    factory.random.reseed_random(f'Yatube project seed {salt}')
 
 
 class UserFactory(factory.DjangoModelFactory):
@@ -25,7 +25,4 @@ class PostFactory(factory.DjangoModelFactory):
         model = Post
 
     author = factory.SubFactory(UserFactory)
-    text = factory.Faker('sentence', nb_words=60 * random.random())
-
-
-reset_factory_random()
+    text = factory.Faker('sentence', nb_words=600 * random.random())
