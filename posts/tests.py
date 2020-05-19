@@ -52,7 +52,7 @@ class NewPostTest(TestCase):
             with self.subTest('Ошибка темплейта или формы /new/'):
                 self.assertEqual(response.status_code, 200)
         post = self.user.posts.filter(author=self.user).last()
-        with self.subTest('Пост не попадает в базу данных (/new/)'):
+        with self.subTest('Посты не попадают в базу данных из /new/'):
             self.assertEqual(post.text, self.records[-1].text)
 
     def test_unauthorized_new_post(self):
@@ -60,7 +60,7 @@ class NewPostTest(TestCase):
         target = '/auth/login/?next=/new/'
         with self.subTest(
                 f'Проверить редирект на страницу логина для неавторизованного '
-                f'пользователя {self.user.username} со страницы /new/'):
+                f'пользователя со страницы /new/'):
             self.assertRedirects(response, target,
                                  status_code=302,
                                  target_status_code=200,
@@ -88,20 +88,21 @@ class NewPostVisibleTest(TestCase):
         self.client.post('/new/', data={'author': self.user,
                                         'text': self.record.text})
         response = self.client.get('/')
-        with self.subTest('Записи нет на главной странице'):
+        with self.subTest('Записи нет на главной странице после публикации'):
             self.assertContains(response, self.record.text, status_code=200,
                                 html=True)
 
     def test_new_post_profile_visible(self):
-        response = self.client.get(f'/{self.user}/')
-        with self.subTest('Запись появилась в профиле до публикации!'):
+        url = f'/{self.user}/'
+        response = self.client.get(url)
+        with self.subTest(f'Запись появилась в профиле {url} до публикации!'):
             self.assertNotContains(response, self.record.text, status_code=200,
                                    html=True)
         self.client.force_login(self.user)
         self.client.post('/new/', data={'author': self.user,
                                         'text': self.record.text})
-        response = self.client.get(f'/{self.user}/')
-        with self.subTest('Записи нет в профиле'):
+        response = self.client.get(url)
+        with self.subTest(f'Записи нет в профиле {url} после публикации'):
             self.assertContains(response, self.record.text, status_code=200,
                                 html=True)
 
@@ -115,7 +116,8 @@ class NewPostVisibleTest(TestCase):
         self.client.post('/new/', data={'author': self.user,
                                         'text': self.record.text})
         response = self.client.get(url)
-        with self.subTest(f'Записи нет на странице поста {url}'):
+        with self.subTest(f'Записи нет на странице поста {url} '
+                          f'после публикации'):
             self.assertContains(response, self.record.text, status_code=200)
 
 
