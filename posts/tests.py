@@ -8,7 +8,6 @@ class ProfileTest(TestCase):
     После регистрации пользователя создается его
     персональная cтраница (profile)
     """
-
     def setUp(self):
         self.client = Client()
 
@@ -36,7 +35,6 @@ class UserNewPostTest(TestCase):
     2) Неавторизованный посетитель не может опубликовать пост (его
     редиректит на страницу входа)
     """
-
     def setUp(self):
         self.client = Client()
         self.user = UserFactory.create()
@@ -73,7 +71,6 @@ class NewPostVisibleTest(TestCase):
     транице сайта (index), на персональной странице пользователя (
     profile), и на отдельной странице поста (post)
     """
-
     def setUp(self):
         self.client = Client()
         self.user = UserFactory.create()
@@ -101,7 +98,10 @@ class NewPostVisibleTest(TestCase):
 
 
 class UserCanEditPostTest(TestCase):
-
+    """
+    Авторизованный пользователь может отредактировать свой пост и его
+    содержимое изменится на всех связанных страницах
+    """
     def setUp(self):
         self.client = Client()
         self.user = UserFactory.create()
@@ -109,36 +109,31 @@ class UserCanEditPostTest(TestCase):
         self.record = PostFactory(author=self.user)
         self.client.post('/new/', data={'author': self.user,
                                         'text': self.record.text})
+        self.add_text = '+ edited text 0001'
 
     def test_edit_post_to_main(self):
-        text = self.record.text
-        add_text = ' edited data test 0011 !'
-        text += add_text
+        text = self.record.text + self.add_text
         edit_path = f'/{self.user}/{self.record.pk}/edit'
         self.client.post(edit_path, data={'author': self.user, 'text': text})
 
         with self.subTest('Редактированной записи нет на главной'):
             response = self.client.get('/')
-            self.assertContains(response, add_text, status_code=200)
+            self.assertContains(response, self.add_text, status_code=200)
 
     def test_edit_post_to_profile(self):
-        text = self.record.text
-        add_text = ' edited data test 0011 !'
-        text += add_text
+        text = self.record.text + self.add_text
         edit_path = f'/{self.user}/{self.record.pk}/edit'
         self.client.post(edit_path, data={'author': self.user, 'text': text})
 
         with self.subTest('Редактированной записи нет в профиле'):
             response = self.client.get(f'/{self.user}/')
-            self.assertContains(response, add_text, status_code=200)
+            self.assertContains(response, self.add_text, status_code=200)
 
     def test_edit_post_to_postpage(self):
-        text = self.record.text
-        add_text = ' edited data test 0011 !'
-        text += add_text
+        text = self.record.text + self.add_text
         edit_path = f'/{self.user}/{self.record.pk}/edit'
         self.client.post(edit_path, data={'author': self.user, 'text': text})
 
         with self.subTest('Редактированной записи нет на странице поста'):
             response = self.client.get(f'/{self.user}/{self.record.pk}/')
-            self.assertContains(response, add_text, status_code=200)
+            self.assertContains(response, self.add_text, status_code=200)
