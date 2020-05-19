@@ -8,6 +8,7 @@ class UsersTest(TestCase):
     После регистрации пользователя создается его
     персональная cтраница (profile)
     """
+
     def test_profile(self):
         reset_factory_random()
         self.users = UserFactory.build_batch(10)
@@ -73,11 +74,14 @@ class NewPostVisibleTest(TestCase):
         self.user = UserFactory.create()
         self.record = PostFactory.build(author=self.user)
 
-    def test_new_post_main_visible(self):
+    def test_already_exist(self):
         response = self.client.get('/')
-        with self.subTest('Запись появилась на главной до публикации!'):
+        with self.subTest('Исходная база не пустая, '
+                          'Запись существует до публикации!'):
             self.assertNotContains(response, self.record.text, status_code=200,
                                    html=True)
+
+    def test_new_post_main_visible(self):
         self.client.force_login(self.user)
         self.client.post('/new/', data={'author': self.user,
                                         'text': self.record.text})
@@ -88,10 +92,6 @@ class NewPostVisibleTest(TestCase):
 
     def test_new_post_profile_visible(self):
         url = f'/{self.user}/'
-        response = self.client.get(url)
-        with self.subTest(f'Запись появилась в профиле {url} до публикации!'):
-            self.assertNotContains(response, self.record.text, status_code=200,
-                                   html=True)
         self.client.force_login(self.user)
         self.client.post('/new/', data={'author': self.user,
                                         'text': self.record.text})
@@ -102,10 +102,6 @@ class NewPostVisibleTest(TestCase):
 
     def test_new_post_own_page_visible(self):
         url = f'/{self.user}/1/'
-        response = self.client.get(url)
-        with self.subTest(f'Запись появляется до публикации! {url}'):
-            self.assertNotContains(response, self.record.text, status_code=404,
-                                   html=True)
         self.client.force_login(self.user)
         self.client.post('/new/', data={'author': self.user,
                                         'text': self.record.text})
