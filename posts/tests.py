@@ -30,8 +30,6 @@ class ProfileTest(TestCase):
                               f' не создается при создании учетной записи!'):
                 self.assertEqual(response.status_code, 200)
 
-    def tearDown(self):
-        self.client.logout()
 
 
 class UserNewPostTest(TestCase):
@@ -43,37 +41,30 @@ class UserNewPostTest(TestCase):
 
     def setUp(self):
         self.client = Client()
-        self.user = User.objects.create_user(username='teano',
-                                             email='test@test.com',
-                                             password='12345ABCDEF')
-        self.client.login(username='teano', password='12345ABCDEF')
-        #self.record = PostFactory.build(author=self.user)
+        self.user = UserFactory.create()
+        self.record = PostFactory.build(author=self.user)
 
     def test_user_new_post(self):
-        text = 'Test text Test AAA 111'
-        response = self.client.post('/new/',
-                                    data={'author': self.user, 'text': text},
-                                    follow=True)
-        self.assertEqual(response.status_code, 200)
+        self.client.force_login(self.user)
+        self.client.post('/new/', data={'author': self.user,
+                                        'text': self.record.text}, follow=True)
         post = self.user.posts.filter(author=self.user).first()
-        self.assertEqual(post.text, text,
+        self.assertEqual(post.text, self.record.text,
                          msg='Пользователь не может созадать пост в (/new/)')
 
-    # def test_unauthorized_new_post(self):
-    #
-    #     response = self.client.get('/new/')
-    #     target = '/auth/login/?next=/new/'
-    #     with self.subTest(
-    #             f'Проверить переход на страницу логина для неавторизованного '
-    #             f'пользователя {self.user.username} со страницы /new/'):
-    #         self.assertRedirects(response, target,
-    #                              status_code=302,
-    #                              target_status_code=200,
-    #                              fetch_redirect_response=True)
+    def test_unauthorized_new_post(self):
+        response = self.client.get('/new/')
+        target = '/auth/login/?next=/new/'
+        with self.subTest(
+                f'Проверить переход на страницу логина для неавторизованного '
+                f'пользователя {self.user.username} со страницы /new/'):
+            self.assertRedirects(response, target,
+                                 status_code=302,
+                                 target_status_code=200,
+                                 fetch_redirect_response=True)
 
-    def tearDown(self):
-        self.client.logout()
-
+    # def tearDown(self):
+    #     self.client.logout()
 
     #
     # def test_is_newpost_visible(self):
