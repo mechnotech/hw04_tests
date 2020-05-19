@@ -1,4 +1,4 @@
-from django.test import Client, TestCase
+from django.test import TestCase
 
 from .factories import UserFactory, PostFactory, reset_factory_random
 
@@ -8,10 +8,6 @@ class UsersTest(TestCase):
     После регистрации пользователя создается его
     персональная cтраница (profile)
     """
-
-    def setUp(self):
-        self.client = Client()
-
     def test_profile(self):
         reset_factory_random()
         self.users = UserFactory.build_batch(10)
@@ -38,7 +34,6 @@ class NewPostTest(TestCase):
     """
 
     def setUp(self):
-        self.client = Client()
         self.user = UserFactory.create()
         self.records = PostFactory.build_batch(15, author=self.user)
 
@@ -75,7 +70,6 @@ class NewPostVisibleTest(TestCase):
     """
 
     def setUp(self):
-        self.client = Client()
         self.user = UserFactory.create()
         self.record = PostFactory.build(author=self.user)
 
@@ -128,7 +122,6 @@ class UserCanEditPostTest(TestCase):
     """
 
     def setUp(self):
-        self.client = Client()
         self.user = UserFactory.create()
         self.client.force_login(self.user)
         self.record = PostFactory(author=self.user)
