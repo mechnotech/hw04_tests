@@ -41,9 +41,7 @@ class NewPostTest(TestCase):
     def test_user_new_post(self):
         self.client.force_login(self.user)
         for record in self.records:
-            response = self.client.post('/new/',
-                                        data={'author': self.user,
-                                              'text': record.text},
+            response = self.client.post('/new/', {'text': record.text},
                                         follow=True)
             with self.subTest('Ошибка темплейта или формы /new/'):
                 self.assertEqual(response.status_code, 200)
@@ -83,8 +81,7 @@ class NewPostVisibleTest(TestCase):
 
     def test_new_post_main_visible(self):
         self.client.force_login(self.user)
-        self.client.post('/new/', data={'author': self.user,
-                                        'text': self.record.text})
+        self.client.post('/new/', {'text': self.record.text})
         response = self.client.get('/')
         with self.subTest('Записи нет на главной странице после публикации'):
             self.assertContains(response, self.record.text, status_code=200,
@@ -93,8 +90,7 @@ class NewPostVisibleTest(TestCase):
     def test_new_post_profile_visible(self):
         url = f'/{self.user}/'
         self.client.force_login(self.user)
-        self.client.post('/new/', data={'author': self.user,
-                                        'text': self.record.text})
+        self.client.post('/new/', {'text': self.record.text})
         response = self.client.get(url)
         with self.subTest(f'Записи нет в профиле {url} после публикации'):
             self.assertContains(response, self.record.text, status_code=200,
@@ -103,8 +99,7 @@ class NewPostVisibleTest(TestCase):
     def test_new_post_own_page_visible(self):
         url = f'/{self.user}/1/'
         self.client.force_login(self.user)
-        self.client.post('/new/', data={'author': self.user,
-                                        'text': self.record.text})
+        self.client.post('/new/', {'text': self.record.text})
         response = self.client.get(url)
         with self.subTest(f'Записи нет на странице поста {url} '
                           f'после публикации'):
@@ -121,14 +116,13 @@ class UserCanEditPostTest(TestCase):
         self.user = UserFactory.create()
         self.client.force_login(self.user)
         self.record = PostFactory(author=self.user)
-        self.client.post('/new/', data={'author': self.user,
-                                        'text': self.record.text})
+        self.client.post('/new/', {'text': self.record.text})
         self.add_text = '+ edited text 0001'
 
     def test_edit_post_to_main(self):
         text = self.record.text + self.add_text
         edit_path = f'/{self.user}/{self.record.pk}/edit'
-        self.client.post(edit_path, data={'author': self.user, 'text': text})
+        self.client.post(edit_path, {'text': text})
 
         with self.subTest('Редактированной записи нет на главной'):
             response = self.client.get('/')
@@ -137,7 +131,7 @@ class UserCanEditPostTest(TestCase):
     def test_edit_post_to_profile(self):
         text = self.record.text + self.add_text
         edit_path = f'/{self.user}/{self.record.pk}/edit'
-        self.client.post(edit_path, data={'author': self.user, 'text': text})
+        self.client.post(edit_path, {'text': text})
 
         with self.subTest('Редактированной записи нет в профиле'):
             response = self.client.get(f'/{self.user}/')
@@ -146,7 +140,7 @@ class UserCanEditPostTest(TestCase):
     def test_edit_post_to_postpage(self):
         text = self.record.text + self.add_text
         edit_path = f'/{self.user}/{self.record.pk}/edit'
-        self.client.post(edit_path, data={'author': self.user, 'text': text})
+        self.client.post(edit_path, {'text': text})
 
         with self.subTest('Редактированной записи нет на странице поста'):
             response = self.client.get(f'/{self.user}/{self.record.pk}/')
