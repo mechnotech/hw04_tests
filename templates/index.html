@@ -4,6 +4,16 @@
 
     <h1> Последние обновления на сайте</h1>
 
-    {% include "page_paginator.html" %}
+    {% for post in page %}
+    <h3>
+        Автор: {{ post.author.get_full_name }}, Дата публикации: {{ post.pub_date|date:"d M Y" }}
+    </h3>
+    <p>{{ post.text|linebreaksbr }}</p>
+    <hr>
+
+    {% endfor %}
+    {% if page.has_other_pages %}
+        {% include "paginator.html" with items=page paginator=paginator%}
+    {% endif %}
 
 {% endblock %}

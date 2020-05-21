@@ -12,7 +12,7 @@
                         <div
                             class="h2">
                             <!-- Имя автора -->
-                            {{ author.first_name }} {{ author.last_name }}
+                            {{ author.get_full_name }}
                         </div>
                         <div
                             class="h3 text-muted">
@@ -74,9 +74,39 @@
                 </div>
                 <!-- Конец блока с отдельным постом -->
                 <!-- Остальные посты -->
-                {% if paginator.count > 0 %}
-                    {% include 'page_paginator.html' with is_profile_query=True %}
+                {% for post in page %}
+                    <div class="card mb-3 mt-1 shadow-sm">
+        <div class="card-body">
+            <p class="card-text">
+                {% if is_profile_query %}
+                    <!-- Текст поста -->
+                    {{ post.text }}
+                {% else %}
+                    <h3>Автор:
+                        {{ post.author.get_full_name }}, Дата публикации:
+                        {{ post.pub_date|date:"d M Y" }}</h3>
+                    <p>{{ post.text }}</p>
                 {% endif %}
+            </p>
+            <div class="d-flex justify-content-between align-items-center">
+                <div
+                    class="btn-group ">
+                    <!-- Ссылка на страницу записи в атрибуте href-->
+                    <a class="btn btn-sm text-muted" href="/{{ post.author }}/{{ post.pk }}/" role="button">Добавить комментарий</a>
+                    <!-- Ссылка на редактирование, показывается только автору записи -->
+                    {% if user == post.author %}
+                        <a class="btn btn-sm text-muted" href="/{{ post.author }}/{{ post.pk }}/edit" role="button">Редактировать</a>
+                    {% endif %}
+                </div>
+                {% if is_profile_query %}
+                    <!-- Дата публикации  -->
+                    <small class="text-muted">{{ post.pub_date|date:"d M Y" }}</small>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endfor %}
+
             </div>
         </div>
     </main>

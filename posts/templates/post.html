@@ -47,7 +47,7 @@
                         <p
                             class="card-text">
                             <!-- Ссылка на страницу автора в атрибуте href; username автора в тексте ссылки -->
-                            <a href="/{{ post.author }}/">
+                            <a href="{% url 'profile' post.author %}">
                                 <strong class="d-block text-gray-dark">@{{ post.author }}</strong>
                             </a>
                             <!-- Текст поста -->
@@ -58,7 +58,7 @@
                                 <div
                                     class="btn-group ">
                                     <!-- Ссылка на редактирование, показывается только автору записи -->
-                                    <a class="btn btn-sm text-muted" href="/{{ post.author }}/{{ post.pk }}/edit" role="button">Редактировать</a>
+                                    <a class="btn btn-sm text-muted" href="{% url 'post_edit' post.author post.pk %}" role="button">Редактировать</a>
                                 </div>
                             {% endif %}
                             <!-- Дата публикации  -->
