@@ -2,7 +2,7 @@ import random
 
 import factory.random
 
-from .models import User, Post
+from .models import Post, User
 
 
 def reset_factory_random(seed='3ef42b5001a'):

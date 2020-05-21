@@ -42,49 +42,47 @@
             <div
                 class="col-md-9">
                 <!-- Начало блока с отдельным постом -->
-
                 {% if paginator.count == 0 %}
-                <div class="card mb-3 mt-1 shadow-sm">
-                    <div class="card-body">
-                        <a href="{% url 'profile' author.username %}"><strong class="d-block text-gray-dark">@{{ author.username }}</strong></a>
-                        <p class="card-text">Пользователь еще ничего не написал</p>
-                    </div></div>
+                    <div class="card mb-3 mt-1 shadow-sm">
+                        <div class="card-body">
+                            <a href="{% url 'profile' author.username %}">
+                                <strong class="d-block text-gray-dark">@{{ author.username }}</strong>
+                            </a>
+                            <p class="card-text">Пользователь еще ничего не написал</p>
+                        </div>
+                    </div>
                 {% endif %}
                 <!-- Конец блока с отдельным постом -->
                 <!-- Остальные посты -->
                 {% for post in page %}
-
                     <div class="card mb-3 mt-1 shadow-sm">
-                    <div class="card-body">
-                        {% if forloop.first %}
-                        <a href="{% url 'profile' author.username %}"><strong class="d-block text-gray-dark">@{{ author.username }}</strong></a>
-                        {% endif %}
-            <p class="card-text">
-
-                    <!-- Текст поста -->
-                    {{ post.text }}
-
-
-            </p>
-            <div class="d-flex justify-content-between align-items-center">
-                <div
-                    class="btn-group ">
-                    <!-- Ссылка на страницу записи в атрибуте href-->
-                    <a class="btn btn-sm text-muted" href="{% url 'post_detail' post.author post.pk %}" role="button">Добавить комментарий</a>
-                    <!-- Ссылка на редактирование, показывается только автору записи -->
-                    {% if user == post.author %}
-                        <a class="btn btn-sm text-muted" href="{% url 'post_edit' post.author post.pk %}" role="button">Редактировать</a>
-                    {% endif %}
-                </div>
-
-                    <!-- Дата публикации  -->
-                    <small class="text-muted">{{ post.pub_date|date:"d M Y" }}</small>
-
-            </div>
-        </div>
-    </div>
-{% endfor %}
-
+                        <div class="card-body">
+                            {% if forloop.first %}
+                                <a href="{% url 'profile' author.username %}">
+                                    <strong class="d-block text-gray-dark">@{{ author.username }}</strong>
+                                </a>
+                            {% endif %}
+                            <p
+                                class="card-text">
+                                <!-- Текст поста -->
+                                {{ post.text }}
+                            </p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div
+                                    class="btn-group ">
+                                    <!-- Ссылка на страницу записи в атрибуте href-->
+                                    <a class="btn btn-sm text-muted" href="{% url 'post_detail' post.author post.pk %}" role="button">Добавить комментарий</a>
+                                    <!-- Ссылка на редактирование, показывается только автору записи -->
+                                    {% if user == post.author %}
+                                        <a class="btn btn-sm text-muted" href="{% url 'post_edit' post.author post.pk %}" role="button">Редактировать</a>
+                                    {% endif %}
+                                </div>
+                                <!-- Дата публикации  -->
+                                <small class="text-muted">{{ post.pub_date|date:"d M Y" }}</small>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
             </div>
         </div>
     </main>
