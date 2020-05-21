@@ -46,30 +46,30 @@ def new_post(request):
 
 
 def profile(request, username):
-    user = get_object_or_404(User, username=username)
-    post_list = user.posts.order_by('-pub_date').all()
+    author = get_object_or_404(User, username=username)
+    post_list = author.posts.order_by('-pub_date').all()
     page, paginator = get_paginated_view(request, post_list)
     return render(request, "profile.html",
-                  {'page': page, 'paginator': paginator, 'author': user})
+                  {'page': page, 'paginator': paginator, 'author': author})
 
 
 def post_view(request, username, post_id):
-    user = get_object_or_404(User, username=username)
-    post = get_object_or_404(Post, pk=post_id, author=user)
-    return render(request, "post.html", {'post': post, 'author': user})
+    author = get_object_or_404(User, username=username)
+    post = get_object_or_404(Post, pk=post_id, author=author)
+    return render(request, "post.html", {'post': post, 'author': author})
 
 
 def post_edit(request, username, post_id):
-    post = get_object_or_404(Post, pk=post_id)
-
-    if request.user != post.author:
+    user = get_object_or_404(User, username=username)
+    if request.user != user:
         return redirect('post_detail', username=username, post_id=post_id)
+    post = get_object_or_404(Post, author=user, pk=post_id)
 
     if request.method == 'POST':
         form = PostForm(request.POST, instance=post)
 
         if form.is_valid():
-            form.save(commit=True)
+            form.save()
             return redirect('post_detail', username=username, post_id=post.pk)
 
         return render(request, "new_post.html", {'form': form, 'post': post})
