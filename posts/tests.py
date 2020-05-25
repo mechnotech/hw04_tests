@@ -42,8 +42,6 @@ class NewPostTest(TestCase):
     def setUp(self):
         self.user = UserFactory.create()
         self.records = PostFactory.build_batch(15, author=self.user)
-        self.url = reverse('new_post')
-        self.login_target = reverse('login') + '?next=' + self.url
         self.index_target = reverse('index')
 
     def test_user_new_post(self):
