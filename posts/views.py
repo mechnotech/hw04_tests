@@ -65,8 +65,11 @@ def post_edit(request, username, post_id):
         return redirect('post_detail', username=username, post_id=post_id)
     post = get_object_or_404(Post, author=user, pk=post_id)
 
+    form = PostForm(request.POST or None, files=request.FILES or None,
+                    instance=post)
+
     if request.method == 'POST':
-        form = PostForm(request.POST, instance=post)
+        #form = PostForm(request.POST, instance=post)
 
         if form.is_valid():
             form.save()
@@ -74,5 +77,13 @@ def post_edit(request, username, post_id):
 
         return render(request, "new_post.html", {'form': form, 'post': post})
 
-    form = PostForm(instance=post)
+
     return render(request, "new_post.html", {'form': form, 'post': post})
+
+
+def page_not_found(request, exception):
+    return render(request, "misc/404.html", {"path": request.path}, status=404)
+
+
+def server_error(request):
+    return render(request, "misc/500.html", status=500)

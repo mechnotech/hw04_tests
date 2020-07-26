@@ -1,7 +1,8 @@
 from django.test import TestCase
 from django.urls import reverse
 
-from .factories import PostFactory, UserFactory, reset_factory_random
+from .factories import PostFactory, UserFactory, reset_factory_random, \
+    get_random_url
 
 
 class UsersTest(TestCase):
@@ -42,6 +43,8 @@ class NewPostTest(TestCase):
     def setUp(self):
         self.user = UserFactory.create()
         self.records = PostFactory.build_batch(15, author=self.user)
+        self.url = reverse('new_post')
+        self.login_target = reverse('login') + '?next=' + self.url
         self.index_target = reverse('index')
 
     def test_user_new_post(self):
@@ -158,3 +161,17 @@ class UserCanEditPostTest(TestCase):
                           f' поста {url}'):
             self.assertEqual(response.context['post'].text,
                              self.changed_text)
+
+
+class HTTPErrorsTest(TestCase):
+    """
+    Сервер возвращает коды ошибки, если страница не найдена.
+    """
+    def setUp(self):
+        self.url = get_random_url()
+        self.response = self.client.get(self.url)
+
+    def test_error404(self):
+        with self.subTest(f'Открытие неизвестной станицы {self.url} не '
+                          f'возвращает ошибку 404'):
+            self.assertEqual(self.response.status_code, 404)
